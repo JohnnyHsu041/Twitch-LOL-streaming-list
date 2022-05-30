@@ -1,117 +1,118 @@
-let isDragging = false;
+const twitchID = "i5pez7cykn5pufq8tl1okprp99qykq";
+const secret = "kp8sd5w5cp1bv7di10byixl3boffcc";
+let token;
 
-document.addEventListener('mousedown', function(event) {
-  if (!dragElement) return;
-  
-  event.preventDefault();
+//get token
+const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}
+&client_secret=${secret}
+&grant_type=client_credentials`;
 
-  dragElement.ondragstart = function() {
-      return false;
+let xhr = new XMLHttpRequest();
+
+xhr.open("POST", getToken, true);
+xhr.send();
+
+//get stream info
+xhr.onload = function () {
+  if (xhr.status >= 200 && xhr.status < 400) {
+    token = JSON.parse(xhr.responseText).access_token;
+
+    getGame(twitchID, token, getStream, getUser, getData);
+  } else console.log("err");
+};
+xhr.onerror = function () {
+  console.log("just error");
+};
+
+//to get game id
+function getGame(clientID, token, callback, callback2, callback3) {
+  const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
+  const id = clientID;
+  const appToken = token;
+  const request = new XMLHttpRequest();
+
+  request.open("GET", api, true);
+  request.setRequestHeader("Authorization", "Bearer " + appToken);
+  request.setRequestHeader("Client-Id", id);
+  request.send();
+  request.onload = function (e) {
+    const result = JSON.parse(request.response).data[0].id;
+    callback(result, id, appToken, callback2, callback3);
   };
+}
 
+//to get game stream list
+let queryString = "?language=zh";
+function getStream(gameID, clientID, token, callback, callback2) {
+  const api = `https://api.twitch.tv/helix/streams${queryString}&game_id=${gameID}`;
+  const id = clientID;
+  const appToken = token;
+  const request = new XMLHttpRequest();
 
-
-  let dragElement = event.target.closest('.draggable');
-
-  let coords, shiftX, shiftY;
-
-  startDrag(dragElement, event.clientX, event.clientY);
-
-  function onMouseUp(event) {
-    finishDrag();
+  request.open("GET", api, true);
+  request.setRequestHeader("Authorization", "Bearer " + appToken);
+  request.setRequestHeader("Client-Id", id);
+  request.send();
+  request.onload = function (e) {
+    const result = JSON.parse(request.response);
+    callback(result, clientID, token, callback2);
   };
+}
 
-  function onMouseMove(event) {
-    moveAt(event.clientX, event.clientY);
+//to get each streamer
+function getUser(result, clientID, token, callback) {
+  const data = result.data;
+  console.log(data);
+
+  for (let streamer of data) {
+    callback(streamer, clientID, token);
   }
+}
 
-  // on drag start:
-  //   remember the initial shift
-  //   move the element position:fixed and a direct child of body
-  function startDrag(element, clientX, clientY) {
-    if(isDragging) {
-      return;
-    }
+//to get streamer info
+function getData(data, clientID, token) {
+  const api = `https://api.twitch.tv/helix/users?id=${data.user_id}`;
+  const streamer = data;
+  const id = clientID;
+  const appToken = token;
+  const request = new XMLHttpRequest();
 
-    isDragging = true;
+  request.open("GET", api, true);
+  request.setRequestHeader("Authorization", "Bearer " + appToken);
+  request.setRequestHeader("Client-Id", id);
+  request.send();
 
-    document.addEventListener('mousemove', onMouseMove);
-    element.addEventListener('mouseup', onMouseUp);
+  request.onload = function (e) {
+    const userLogin = streamer.user_login;
+    const streamTitle = streamer.title;
+    const streamerName = streamer.user_name;
+    const image = JSON.parse(request.response).data[0].profile_image_url;
+    console.log(streamer);
 
-    shiftX = clientX - element.getBoundingClientRect().left;
-    shiftY = clientY - element.getBoundingClientRect().top;
+    let div = document.createElement("div");
+    let thumbnail = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${userLogin}-300x150.jpg`;
 
-    element.style.position = 'fixed';
+    div.classList.add("streamer");
+    div.innerHTML = `
+      <a href="https://www.twitch.tv/${streamer.user_login}" target="_blank">
+        <img
+          class="thumbnail"
+          src="${thumbnail}" alt="stream_thumbnail"
+        />
+        <div class="streamer-info">
+          <div class="profile-photo">
+            <img src="${image}"/>
+          </div>
+          <div class="stream-name">
+            <div class="channel">
+              ${streamTitle}
+            </div>
+            <div>${streamerName}</div>
+          </div>
+        </div>
+      </a>
+    `;
 
-    moveAt(clientX, clientY);
+    document.querySelector(".streamers-container").appendChild(div);
   };
-
-  // switch to absolute coordinates at the end, to fix the element in the document
-  function finishDrag() {
-    if(!isDragging) {
-      return;
-    }
-
-    isDragging = false;
-
-    dragElement.style.top = parseInt(dragElement.style.top) + window.pageYOffset + 'px';
-    dragElement.style.position = 'absolute';
-
-    document.removeEventListener('mousemove', onMouseMove);
-    dragElement.removeEventListener('mouseup', onMouseUp);
-  }
-
-  function moveAt(clientX, clientY) {
-    // new window-relative coordinates
-    let newX = clientX - shiftX;
-    let newY = clientY - shiftY;
-
-    // check if the new coordinates are below the bottom window edge
-    let newBottom = newY + dragElement.offsetHeight; // new bottom
-
-    // below the window? let's scroll the page
-    if (newBottom > document.documentElement.clientHeight) {
-      // window-relative coordinate of document end
-      let docBottom = document.documentElement.getBoundingClientRect().bottom;
-
-      // scroll the document down by 10px has a problem
-      // it can scroll beyond the end of the document
-      // Math.min(how much left to the end, 10)
-      let scrollY = Math.min(docBottom - newBottom, 10);
-
-      // calculations are imprecise, there may be rounding errors that lead to scrolling up
-      // that should be impossible, fix that here
-      if (scrollY < 0) scrollY = 0;
-
-      window.scrollBy(0, scrollY);
-
-      // a swift mouse move make put the cursor beyond the document end
-      // if that happens -
-      // limit the new Y by the maximally possible (right at the bottom of the document)
-      newY = Math.min(newY, document.documentElement.clientHeight - dragElement.offsetHeight);
-    }
-
-    // check if the new coordinates are above the top window edge (similar logic)
-    if (newY < 0) {
-      // scroll up
-      let scrollY = Math.min(-newY, 10);
-      if (scrollY < 0) scrollY = 0; // check precision errors
-
-      window.scrollBy(0, -scrollY);
-      // a swift mouse move can put the cursor beyond the document start
-      newY = Math.max(newY, 0); // newY may not be below 0
-    }
-
-
-    // limit the new X within the window boundaries
-    // there's no scroll here so it's simple
-    if (newX < 0) newX = 0;
-    if (newX > document.documentElement.clientWidth - dragElement.offsetWidth) {
-      newX = document.documentElement.clientWidth - dragElement.offsetWidth;
-    }
-
-    dragElement.style.left = newX + 'px';
-    dragElement.style.top = newY + 'px';
-  }
-
-});
+}

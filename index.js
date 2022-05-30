@@ -62,7 +62,6 @@ function getStream(gameID, clientID, token, callback, callback2) {
 //to get each streamer
 function getUser(result, clientID, token, callback) {
   const data = result.data;
-  console.log(data);
 
   for (let streamer of data) {
     callback(streamer, clientID, token);
@@ -87,7 +86,6 @@ function getData(data, clientID, token) {
     const streamTitle = streamer.title;
     const streamerName = streamer.user_name;
     const image = JSON.parse(request.response).data[0].profile_image_url;
-    console.log(streamer);
 
     let div = document.createElement("div");
     let thumbnail = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${userLogin}-300x150.jpg`;

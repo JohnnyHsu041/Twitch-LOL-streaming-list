@@ -62,7 +62,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url(https://static-cdn.jtvnw.net/ttv-static/404_preview-320x180.jpg);
+  background: url(./404_preview-320x180.jpeg);
 }
 
 .thumbnail {
@@ -96,7 +96,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url(https://static-cdn.jtvnw.net/ttv-static/404_preview-40x40.jpg);
+  background: url(./404_preview-320x180.jpeg);
 }
 
 .avatar {

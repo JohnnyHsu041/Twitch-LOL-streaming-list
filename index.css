@@ -48,6 +48,8 @@ body {
 .link {
   display: grid;
   grid-template-columns: 300px;
+  /* to remove the underlines of stream title & streamer name */
+  text-decoration: none;
 }
 
 .preview {

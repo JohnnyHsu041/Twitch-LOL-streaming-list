@@ -3,34 +3,67 @@ const secret = "kv0rrwiygt7dxqphpjgg4almaqaw56";
 
 //get app token
 const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client_secret=${secret}&grant_type=client_credentials`;
-const xhr = new XMLHttpRequest();
 
-xhr.open("POST", getToken, true);
-xhr.send();
-xhr.onerror = () => console.log("just error");
-xhr.onload = function () {
-  if (xhr.status >= 200 && xhr.status < 400) {
-    let token = JSON.parse(xhr.responseText).access_token;
+$(document).ready(function () {
+  $.ajax({
+    url: getToken,
+    method: "POST",
+    type: "json",
+    success: function (response) {
+      getGame(twitchID, response.access_token, getStream, getUser, getData);
+    },
+    error: function (response) {
+      console.log("error");
+    },
+  });
+});
 
-    //starts callbacks to get stream info
-    getGame(twitchID, token, getStream, getUser, getData);
-  } else console.log("err");
-};
+// vanilla.js
+// const xhr = new XMLHttpRequest();
+
+// xhr.open("POST", getToken, true);
+// xhr.send();
+// xhr.onerror = () => console.log("just error");
+// xhr.onload = function () {
+//   if (xhr.status >= 200 && xhr.status < 400) {
+//     let token = JSON.parse(xhr.responseText).access_token;
+
+//     //starts callbacks to get stream info
+//     getGame(twitchID, token, getStream, getUser, getData);
+//   } else console.log("err");
+// };
 
 //get game id
 function getGame(clientID, token, callback, callback2, callback3) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
   const id = clientID;
   const appToken = token;
-  const request = new XMLHttpRequest();
-  request.open("GET", api, true);
-  request.setRequestHeader("Authorization", "Bearer " + appToken);
-  request.setRequestHeader("Client-Id", id);
-  request.send();
-  request.onload = function (e) {
-    const result = JSON.parse(request.response).data[0].id;
-    callback(result, id, appToken, callback2, callback3);
-  };
+
+  $.ajax({
+    url: api,
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + appToken,
+      "Client-Id": id,
+    },
+    type: "json",
+    success: (response) => {
+      const result = response.data[0].id;
+      callback(result, id, appToken, callback2, callback3);
+    },
+    error: (response) => console.log("getGame error"),
+  });
+
+  // vanilla.js
+  // const request = new XMLHttpRequest();
+  // request.open("GET", api, true);
+  // request.setRequestHeader("Authorization", "Bearer " + appToken);
+  // request.setRequestHeader("Client-Id", id);
+  // request.send();
+  // request.onload = function (e) {
+  //   const result = JSON.parse(request.response).data[0].id;
+  //   callback(result, id, appToken, callback2, callback3);
+  // };
 }
 
 //get stream list
@@ -38,21 +71,37 @@ function getStream(gameID, clientID, token, callback, callback2) {
   const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}`;
   const id = clientID;
   const appToken = token;
-  const request = new XMLHttpRequest();
-  request.open("GET", api, true);
-  request.setRequestHeader("Authorization", "Bearer " + appToken);
-  request.setRequestHeader("Client-Id", id);
-  request.send();
-  request.onload = function (e) {
-    const result = JSON.parse(request.response);
-    callback(result, clientID, token, callback2);
-  };
+
+  $.ajax({
+    url: api,
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + appToken,
+      "Client-Id": id,
+    },
+    type: "json",
+    success: (response) => {
+      const result = response;
+      callback(result, clientID, token, callback2);
+    },
+    error: (response) => console.log("getStream error"),
+  });
+
+  // vanilla.js
+  // const request = new XMLHttpRequest();
+  // request.open("GET", api, true);
+  // request.setRequestHeader("Authorization", "Bearer " + appToken);
+  // request.setRequestHeader("Client-Id", id);
+  // request.send();
+  // request.onload = function (e) {
+  //   const result = JSON.parse(request.response);
+  //   callback(result, clientID, token, callback2);
+  // };
 }
 
 //get each streamer
 function getUser(result, clientID, token, callback) {
   const data = result.data;
-
   for (let i = 0; i < data.length; i++) {
     callback(data[i], clientID, token, i);
   }
@@ -65,53 +114,43 @@ function getData(data, clientID, token, count) {
   const id = clientID;
   const appToken = token;
   const order = count;
-  const request = new XMLHttpRequest();
 
-  request.open("GET", api, true);
-  request.setRequestHeader("Authorization", "Bearer " + appToken);
-  request.setRequestHeader("Client-Id", id);
-  request.send();
-  request.onload = function (e) {
-    const userLogin = streamer.user_login;
-    const link = `https://www.twitch.tv/${userLogin}`;
-    const streamTitle = streamer.title;
-    const streamerName = streamer.user_name;
-    const image = JSON.parse(request.response).data[0].profile_image_url;
-    const thumbnail = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${userLogin}-300x150.jpg`;
+  $.ajax({
+    url: api,
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + appToken,
+      "Client-Id": id,
+    },
+    type: "json",
+    success: (response) => {
+      render(streamer, order, response);
+    },
+    error: (response) => console.log("getData error"),
+  });
 
-    document.querySelectorAll(".link")[order].setAttribute("href", link);
-    document
-      .querySelectorAll(".thumbnail")
-      [order].setAttribute("src", thumbnail);
-    document.querySelectorAll(".avatar")[order].setAttribute("src", image);
-    document.querySelectorAll(".channel")[order].innerHTML = streamTitle;
-    document.querySelectorAll(".streamer-name")[order].innerHTML = streamerName;
+  // vanilla.js
+  // const request = new XMLHttpRequest();
+  // request.open("GET", api, true);
+  // request.setRequestHeader("Authorization", "Bearer " + appToken);
+  // request.setRequestHeader("Client-Id", id);
+  // request.send();
+  // request.onload = function (e) {
+  //   render(streamer, order, response);
+  // };
+}
 
-    // PREVIOUS VERSION
+function render(streamer, order, result) {
+  const userLogin = streamer.user_login;
+  const link = `https://www.twitch.tv/${userLogin}`;
+  const streamTitle = streamer.title;
+  const streamerName = streamer.user_name;
+  const image = result.data[0].profile_image_url;
+  const thumbnail = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${userLogin}-300x150.jpg`;
 
-    // let div = document.createElement("div");
-    // div.classList.add("streamer");
-    // div.innerHTML = `
-    //   <a href="https://www.twitch.tv/${streamer.user_login}" target="_blank" class="link">
-    //     <div class="preview">
-    //       <img
-    //         class="thumbnail"
-    //         src="${thumbnail}" alt="stream_thumbnail" onload="this.style.opacity=1"
-    //       />
-    //     </div>
-    //     <div class="streamer-info">
-    //       <div class="profile-photo">
-    //         <img src="${image}"/>
-    //       </div>
-    //       <div class="stream-name">
-    //         <div class="channel">
-    //           ${streamTitle}
-    //         </div>
-    //         <div>${streamerName}</div>
-    //       </div>
-    //     </div>
-    //   </a>
-    // `;
-    // document.querySelector(".streamers-container").appendChild(div);
-  };
+  document.querySelectorAll(".link")[order].setAttribute("href", link);
+  document.querySelectorAll(".thumbnail")[order].setAttribute("src", thumbnail);
+  document.querySelectorAll(".avatar")[order].setAttribute("src", image);
+  document.querySelectorAll(".channel")[order].innerHTML = streamTitle;
+  document.querySelectorAll(".streamer-name")[order].innerHTML = streamerName;
 }

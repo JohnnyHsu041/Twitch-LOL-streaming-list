@@ -1,40 +1,40 @@
 const twitchID = "i5pez7cykn5pufq8tl1okprp99qykq";
 const secret = "kv0rrwiygt7dxqphpjgg4almaqaw56";
-
-//get app token
 const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client_secret=${secret}&grant_type=client_credentials`;
 
-$(document).ready(function () {
+//get app token
+$(document).ready(() => {
   $.ajax({
     url: getToken,
     method: "POST",
     type: "json",
     success: function (response) {
-      getGame(twitchID, response.access_token, getStream, getUser, getData);
+      const token = response.access_token;
+      getGameID(twitchID, token, getStream, getUser, getData);
     },
     error: function (response) {
-      console.log("error");
+      console.log(" getToken error");
     },
   });
+
+  // vanilla.js
+  // const xhr = new XMLHttpRequest();
+
+  // xhr.open("POST", getToken, true);
+  // xhr.send();
+  // xhr.onerror = () => console.log("just error");
+  // xhr.onload = function () {
+  //   if (xhr.status >= 200 && xhr.status < 400) {
+  //     let token = JSON.parse(xhr.responseText).access_token;
+
+  //     //starts callbacks to get stream info
+  //     getGameID(twitchID, token, getStream, getUser, getData);
+  //   } else console.log("err");
+  // };
 });
 
-// vanilla.js
-// const xhr = new XMLHttpRequest();
-
-// xhr.open("POST", getToken, true);
-// xhr.send();
-// xhr.onerror = () => console.log("just error");
-// xhr.onload = function () {
-//   if (xhr.status >= 200 && xhr.status < 400) {
-//     let token = JSON.parse(xhr.responseText).access_token;
-
-//     //starts callbacks to get stream info
-//     getGame(twitchID, token, getStream, getUser, getData);
-//   } else console.log("err");
-// };
-
 //get game id
-function getGame(clientID, token, callback, callback2, callback3) {
+function getGameID(clientID, token, callback, callback2, callback3) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
   const id = clientID;
   const appToken = token;
@@ -51,7 +51,7 @@ function getGame(clientID, token, callback, callback2, callback3) {
       const result = response.data[0].id;
       callback(result, id, appToken, callback2, callback3);
     },
-    error: (response) => console.log("getGame error"),
+    error: (response) => console.log("getGameID error"),
   });
 
   // vanilla.js
@@ -148,9 +148,9 @@ function render(streamer, order, result) {
   const image = result.data[0].profile_image_url;
   const thumbnail = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${userLogin}-300x150.jpg`;
 
-  document.querySelectorAll(".link")[order].setAttribute("href", link);
-  document.querySelectorAll(".thumbnail")[order].setAttribute("src", thumbnail);
-  document.querySelectorAll(".avatar")[order].setAttribute("src", image);
-  document.querySelectorAll(".channel")[order].innerHTML = streamTitle;
-  document.querySelectorAll(".streamer-name")[order].innerHTML = streamerName;
+  $(".link")[order].setAttribute("href", link);
+  $(".thumbnail")[order].setAttribute("src", thumbnail);
+  $(".avatar")[order].setAttribute("src", image);
+  $(".channel")[order].innerHTML = streamTitle;
+  $(".streamer-name")[order].innerHTML = streamerName;
 }

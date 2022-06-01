@@ -37,7 +37,6 @@ body {
 .streamer {
   transition: all 0.5s;
   width: 300px;
-  height: 210px;
 }
 .streamer:hover {
   box-shadow: 10px 10px 10px 5px rgba(0, 0, 0, 0.5);
@@ -48,7 +47,7 @@ body {
 .link {
   display: grid;
   grid-template-columns: 300px;
-  /* to remove the underlines of stream title & streamer name */
+  /* to remove the lines under stream title & streamer name */
   text-decoration: none;
 }
 

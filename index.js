@@ -1,30 +1,23 @@
 const twitchID = "i5pez7cykn5pufq8tl1okprp99qykq";
-const secret = "kp8sd5w5cp1bv7di10byixl3boffcc";
+const secret = "kv0rrwiygt7dxqphpjgg4almaqaw56";
 
-//get token
-const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}
-&client_secret=${secret}
-&grant_type=client_credentials`;
-
+//get app token
+const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client_secret=${secret}&grant_type=client_credentials`;
 const xhr = new XMLHttpRequest();
+
 xhr.open("POST", getToken, true);
 xhr.send();
-
-let token;
+xhr.onerror = () => console.log("just error");
 xhr.onload = function () {
   if (xhr.status >= 200 && xhr.status < 400) {
-    token = JSON.parse(xhr.responseText).access_token;
+    let token = JSON.parse(xhr.responseText).access_token;
 
     //starts callbacks to get stream info
     getGame(twitchID, token, getStream, getUser, getData);
   } else console.log("err");
 };
 
-xhr.onerror = function () {
-  console.log("just error");
-};
-
-//to get game id
+//get game id
 function getGame(clientID, token, callback, callback2, callback3) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
   const id = clientID;
@@ -40,8 +33,7 @@ function getGame(clientID, token, callback, callback2, callback3) {
   };
 }
 
-//to get game stream list
-// let queryString = "?language=zh";
+//get stream list
 function getStream(gameID, clientID, token, callback, callback2) {
   const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}`;
   const id = clientID;
@@ -57,17 +49,16 @@ function getStream(gameID, clientID, token, callback, callback2) {
   };
 }
 
-//to get each streamer
+//get each streamer
 function getUser(result, clientID, token, callback) {
   const data = result.data;
-  let i = 0;
-  for (let streamer of data) {
-    callback(streamer, clientID, token, i);
-    i++;
+
+  for (let i = 0; i < data.length; i++) {
+    callback(data[i], clientID, token, i);
   }
 }
 
-//to get streamer info
+//get streamer info
 function getData(data, clientID, token, count) {
   const api = `https://api.twitch.tv/helix/users?id=${data.user_id}`;
   const streamer = data;

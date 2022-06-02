@@ -32,6 +32,7 @@ body {
 
 .chinese {
   cursor: pointer;
+  font-size: 20px;
 }
 
 .chinese:hover {
@@ -40,6 +41,7 @@ body {
 
 .english {
   cursor: pointer;
+  font-size: 20px;
 }
 
 .english:hover {

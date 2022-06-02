@@ -23,6 +23,8 @@ $(document).ready(() => {
       (index) => ($(".thumbnail")[index].style.opacity = "0")
     );
     $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
+    $(".channel").html("Title");
+    $(".streamer-name").html("Streamer");
 
     //re-launch request
     $.ajax({
@@ -52,6 +54,8 @@ $(document).ready(() => {
       (index) => ($(".thumbnail")[index].style.opacity = "0")
     );
     $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
+    $(".channel").html("Title");
+    $(".streamer-name").html("Streamer");
 
     //re-launch request
     $.ajax({

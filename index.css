@@ -21,7 +21,29 @@ body {
   text-align: center;
   color: #b7b7b7;
   font-size: 40px;
+}
+
+.button {
   margin-bottom: 30px;
+  font-weight: bold;
+  color: #b7b7b7;
+  text-align: center;
+}
+
+.chinese {
+  cursor: pointer;
+}
+
+.chinese:hover {
+  color: rgba(79, 79, 234, 0.718);
+}
+
+.english {
+  cursor: pointer;
+}
+
+.english:hover {
+  color: rgba(79, 79, 234, 0.718);
 }
 
 .streamers-container {

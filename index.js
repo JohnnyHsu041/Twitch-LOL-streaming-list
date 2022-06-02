@@ -1,20 +1,62 @@
 const twitchID = "i5pez7cykn5pufq8tl1okprp99qykq";
 const secret = "kv0rrwiygt7dxqphpjgg4almaqaw56";
 const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client_secret=${secret}&grant_type=client_credentials`;
+let lang = "&language=zh";
+let titleLang = "zh-tw";
 
-//get app token
+//initialize to get app token
 $(document).ready(() => {
-  $.ajax({
-    url: getToken,
-    method: "POST",
-    type: "json",
-    success: function (response) {
-      const token = response.access_token;
-      getGameID(twitchID, token, getStream, getUser, getData);
-    },
-    error: function (response) {
-      console.log(" getToken error");
-    },
+  $(".title").html(window.I18N[titleLang].TITLE);
+
+  initialize(getToken, getGameID);
+
+  $(".chinese").click(function (e) {
+    lang = "&language=zh";
+    titleLang = "zh-tw";
+
+    $(".title").html(window.I18N[titleLang].TITLE);
+
+    //transition animation
+    console.log($(".thumbnail"));
+    // $(".thumbnail").each((preview) => console.log(preview));
+    // $(".avatar").each((avatar) => console.log(avatar));
+
+    $.ajax({
+      url: getToken,
+      method: "POST",
+      type: "json",
+      success: function (response) {
+        const token = response.access_token;
+        getGameID(twitchID, token, getStream);
+      },
+      error: function (response) {
+        console.log(" Chinese getToken error");
+      },
+    });
+  });
+
+  $(".english").click(function (e) {
+    lang = "&language=en";
+    titleLang = "en";
+
+    $(".title").html(window.I18N[titleLang].TITLE);
+
+    // transition animation
+    // $(".thumbnail").style.opacity = "0";
+    // $(".avatar").style.opacity = "0";
+
+    $.ajax({
+      url: getToken,
+      method: "POST",
+      type: "json",
+      success: function (response) {
+        const token = response.access_token;
+        getGameID(twitchID, token, getStream);
+      },
+      error: function (response) {
+        console.log(" English getToken error");
+      },
+    });
   });
 
   // vanilla.js
@@ -33,8 +75,24 @@ $(document).ready(() => {
   // };
 });
 
+//initialize
+function initialize(getToken, callback) {
+  $.ajax({
+    url: getToken,
+    method: "POST",
+    type: "json",
+    success: function (response) {
+      const token = response.access_token;
+      callback(twitchID, token, getStream);
+    },
+    error: function (response) {
+      console.log(" getToken error");
+    },
+  });
+}
+
 //get game id
-function getGameID(clientID, token, callback, callback2, callback3) {
+function getGameID(clientID, token, callback) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
   const id = clientID;
   const appToken = token;
@@ -49,7 +107,7 @@ function getGameID(clientID, token, callback, callback2, callback3) {
     type: "json",
     success: (response) => {
       const result = response.data[0].id;
-      callback(result, id, appToken, callback2, callback3);
+      callback(result, id, appToken, getUser);
     },
     error: (response) => console.log("getGameID error"),
   });
@@ -67,8 +125,8 @@ function getGameID(clientID, token, callback, callback2, callback3) {
 }
 
 //get stream list
-function getStream(gameID, clientID, token, callback, callback2) {
-  const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}`;
+function getStream(gameID, clientID, token, callback) {
+  const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}${lang}`;
   const id = clientID;
   const appToken = token;
 
@@ -82,7 +140,7 @@ function getStream(gameID, clientID, token, callback, callback2) {
     type: "json",
     success: (response) => {
       const result = response;
-      callback(result, clientID, token, callback2);
+      callback(result, clientID, token, getData);
     },
     error: (response) => console.log("getStream error"),
   });
@@ -103,12 +161,12 @@ function getStream(gameID, clientID, token, callback, callback2) {
 function getUser(result, clientID, token, callback) {
   const data = result.data;
   for (let i = 0; i < data.length; i++) {
-    callback(data[i], clientID, token, i);
+    callback(data[i], clientID, token, i, render);
   }
 }
 
 //get streamer info
-function getData(data, clientID, token, count) {
+function getData(data, clientID, token, count, callback) {
   const api = `https://api.twitch.tv/helix/users?id=${data.user_id}`;
   const streamer = data;
   const id = clientID;
@@ -123,9 +181,7 @@ function getData(data, clientID, token, count) {
       "Client-Id": id,
     },
     type: "json",
-    success: (response) => {
-      render(streamer, order, response);
-    },
+    success: (response) => callback(streamer, order, response),
     error: (response) => console.log("getData error"),
   });
 
@@ -140,6 +196,7 @@ function getData(data, clientID, token, count) {
   // };
 }
 
+//render
 function render(streamer, order, result) {
   const userLogin = streamer.user_login;
   const link = `https://www.twitch.tv/${userLogin}`;

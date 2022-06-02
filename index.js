@@ -7,206 +7,141 @@ let titleLang = "zh-tw";
 $(document).ready(() => {
   $(".title").html(window.I18N[titleLang].TITLE);
 
-  //initialize to get app token
-  initialize(getToken, getGameID);
+  //initialize
+  launch(
+    twitchID,
+    getToken,
+    lang,
+    getGameID,
+    getStream,
+    getUser,
+    getData,
+    render
+  );
 
-  //click button to transfer to Chinese stream list
-  $(".chinese").click(function (e) {
-    lang = "&language=zh";
-    titleLang = "zh-tw";
+  const chinese = changeStreamLang("&language=zh", "zh-tw");
+  const english = changeStreamLang("&language=en", "en");
 
-    //title language
-    $(".title").html(window.I18N[titleLang].TITLE);
-
-    //reload animation
-    $(".thumbnail").each(
-      (index) => ($(".thumbnail")[index].style.opacity = "0")
-    );
-    $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
-    $(".channel").html("Title");
-    $(".streamer-name").html("Streamer");
-
-    //re-launch request
-    $.ajax({
-      url: getToken,
-      method: "POST",
-      type: "json",
-      success: function (response) {
-        const token = response.access_token;
-        getGameID(twitchID, token, getStream);
-      },
-      error: function (response) {
-        console.log(" Chinese getToken error");
-      },
-    });
-  });
-
-  //click button to transfer to English stream list
-  $(".english").click(function (e) {
-    lang = "&language=en";
-    titleLang = "en";
-
-    //title language
-    $(".title").html(window.I18N[titleLang].TITLE);
-
-    // reload animation
-    $(".thumbnail").each(
-      (index) => ($(".thumbnail")[index].style.opacity = "0")
-    );
-    $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
-    $(".channel").html("Title");
-    $(".streamer-name").html("Streamer");
-
-    //re-launch request
-    $.ajax({
-      url: getToken,
-      method: "POST",
-      type: "json",
-      success: function (response) {
-        const token = response.access_token;
-        getGameID(twitchID, token, getStream);
-      },
-      error: function (response) {
-        console.log(" English getToken error");
-      },
-    });
-  });
-
-  // vanilla.js
-  // const xhr = new XMLHttpRequest();
-
-  // xhr.open("POST", getToken, true);
-  // xhr.send();
-  // xhr.onerror = () => console.log("just error");
-  // xhr.onload = function () {
-  //   if (xhr.status >= 200 && xhr.status < 400) {
-  //     let token = JSON.parse(xhr.responseText).access_token;
-
-  //     //starts callbacks to get stream info
-  //     getGameID(twitchID, token, getStream, getUser, getData);
-  //   } else console.log("err");
-  // };
+  //click to switch stream list
+  $(".chinese").click(chinese);
+  $(".english").click(english);
 });
 
-//initialize
-function initialize(getToken, callback) {
+//switch to the stream list of chosen language
+function changeStreamLang(streamLang, title) {
+  lang = streamLang;
+  titleLang = title;
+
+  //i18n
+  $(".title").html(window.I18N[titleLang].TITLE);
+
+  //reload animation
+  $(".thumbnail").each((index) => ($(".thumbnail")[index].style.opacity = "0"));
+  $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
+  $(".channel").html("Title");
+  $(".streamer-name").html("Streamer");
+
+  //re-launch request
+  launch(
+    twitchID,
+    getToken,
+    lang,
+    getGameID,
+    getStream,
+    getUser,
+    getData,
+    render
+  );
+}
+
+//launch request
+function launch(
+  id,
+  token,
+  lang,
+  callback,
+  callback2,
+  callback3,
+  callback4,
+  callback5
+) {
   $.ajax({
-    url: getToken,
+    url: token,
     method: "POST",
     type: "json",
     success: function (response) {
       const token = response.access_token;
-      callback(twitchID, token, getStream);
+      callback(id, token, lang, callback2, callback3, callback4, callback5);
     },
     error: function (response) {
-      console.log(" getToken error");
+      console.log("error");
     },
   });
 }
 
 //get game id
-function getGameID(clientID, token, callback) {
+function getGameID(id, token, lang, callback, callback2, callback3, callback4) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
-  const id = clientID;
-  const appToken = token;
 
   $.ajax({
     url: api,
     method: "GET",
     headers: {
-      Authorization: "Bearer " + appToken,
+      Authorization: "Bearer " + token,
       "Client-Id": id,
     },
     type: "json",
     success: (response) => {
-      const result = response.data[0].id;
-      callback(result, id, appToken, getUser);
+      const gameID = response.data[0].id;
+      callback(gameID, id, token, lang, callback2, callback3, callback4);
     },
     error: (response) => console.log("getGameID error"),
   });
-
-  // vanilla.js
-  // const request = new XMLHttpRequest();
-  // request.open("GET", api, true);
-  // request.setRequestHeader("Authorization", "Bearer " + appToken);
-  // request.setRequestHeader("Client-Id", id);
-  // request.send();
-  // request.onload = function (e) {
-  //   const result = JSON.parse(request.response).data[0].id;
-  //   callback(result, id, appToken, callback2, callback3);
-  // };
 }
 
 //get stream list
-function getStream(gameID, clientID, token, callback) {
+function getStream(gameID, id, token, lang, callback, callback2, callback3) {
   const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}${lang}`;
-  const id = clientID;
-  const appToken = token;
 
   $.ajax({
     url: api,
     method: "GET",
     headers: {
-      Authorization: "Bearer " + appToken,
+      Authorization: "Bearer " + token,
       "Client-Id": id,
     },
     type: "json",
     success: (response) => {
       const result = response;
-      callback(result, clientID, token, getData);
+      callback(result, id, token, callback2, callback3);
     },
-    error: (response) => console.log("getStream error"),
+    error: (response) => console.log("error"),
   });
-
-  // vanilla.js
-  // const request = new XMLHttpRequest();
-  // request.open("GET", api, true);
-  // request.setRequestHeader("Authorization", "Bearer " + appToken);
-  // request.setRequestHeader("Client-Id", id);
-  // request.send();
-  // request.onload = function (e) {
-  //   const result = JSON.parse(request.response);
-  //   callback(result, clientID, token, callback2);
-  // };
 }
 
 //get each streamer
-function getUser(result, clientID, token, callback) {
-  const data = result.data;
-  for (let i = 0; i < data.length; i++) {
-    callback(data[i], clientID, token, i, render);
+function getUser(result, clientID, token, callback, callback2) {
+  const streamers = result.data;
+  for (let i = 0; i < streamers.length; i++) {
+    callback(streamers[i], clientID, token, i, callback2);
   }
 }
 
 //get streamer info
-function getData(data, clientID, token, count, callback) {
-  const api = `https://api.twitch.tv/helix/users?id=${data.user_id}`;
-  const streamer = data;
-  const id = clientID;
-  const appToken = token;
-  const order = count;
+function getData(streamer, clientID, token, order, callback) {
+  const api = `https://api.twitch.tv/helix/users?id=${streamer.user_id}`;
 
   $.ajax({
     url: api,
     method: "GET",
     headers: {
-      Authorization: "Bearer " + appToken,
-      "Client-Id": id,
+      Authorization: "Bearer " + token,
+      "Client-Id": clientID,
     },
     type: "json",
     success: (response) => callback(streamer, order, response),
-    error: (response) => console.log("getData error"),
+    error: (response) => console.log("error"),
   });
-
-  // vanilla.js
-  // const request = new XMLHttpRequest();
-  // request.open("GET", api, true);
-  // request.setRequestHeader("Authorization", "Bearer " + appToken);
-  // request.setRequestHeader("Client-Id", id);
-  // request.send();
-  // request.onload = function (e) {
-  //   render(streamer, order, response);
-  // };
 }
 
 //render

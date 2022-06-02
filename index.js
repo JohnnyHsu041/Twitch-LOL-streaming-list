@@ -4,23 +4,27 @@ const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client
 let lang = "&language=zh";
 let titleLang = "zh-tw";
 
-//initialize to get app token
 $(document).ready(() => {
   $(".title").html(window.I18N[titleLang].TITLE);
 
+  //initialize to get app token
   initialize(getToken, getGameID);
 
+  //click button to transfer to Chinese stream list
   $(".chinese").click(function (e) {
     lang = "&language=zh";
     titleLang = "zh-tw";
 
+    //title language
     $(".title").html(window.I18N[titleLang].TITLE);
 
-    //transition animation
-    console.log($(".thumbnail"));
-    // $(".thumbnail").each((preview) => console.log(preview));
-    // $(".avatar").each((avatar) => console.log(avatar));
+    //reload animation
+    $(".thumbnail").each(
+      (index) => ($(".thumbnail")[index].style.opacity = "0")
+    );
+    $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
 
+    //re-launch request
     $.ajax({
       url: getToken,
       method: "POST",
@@ -35,16 +39,21 @@ $(document).ready(() => {
     });
   });
 
+  //click button to transfer to English stream list
   $(".english").click(function (e) {
     lang = "&language=en";
     titleLang = "en";
 
+    //title language
     $(".title").html(window.I18N[titleLang].TITLE);
 
-    // transition animation
-    // $(".thumbnail").style.opacity = "0";
-    // $(".avatar").style.opacity = "0";
+    // reload animation
+    $(".thumbnail").each(
+      (index) => ($(".thumbnail")[index].style.opacity = "0")
+    );
+    $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
 
+    //re-launch request
     $.ajax({
       url: getToken,
       method: "POST",

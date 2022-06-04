@@ -1,3 +1,37 @@
+const $ = require("jquery");
+const I18N = {
+  en: require("./lang-en.js"),
+  "zh-tw": require("./lang-zh-tw.js"),
+};
+const twitchID = "i5pez7cykn5pufq8tl1okprp99qykq";
+const secret = "kv0rrwiygt7dxqphpjgg4almaqaw56";
+const getToken = `https://id.twitch.tv/oauth2/token?client_id=${twitchID}&client_secret=${secret}&grant_type=client_credentials`;
+let lang = "&language=zh";
+let titleLang = "zh-tw";
+
+$(document).ready(() => {
+  //initialize
+  $(".title").html(I18N[titleLang].TITLE);
+  launch(
+    twitchID,
+    getToken,
+    lang,
+    getGameID,
+    getStream,
+    getUser,
+    getData,
+    render
+  );
+
+  //switch languages
+  $(".chinese").click(() => {
+    changeStreamLang("&language=zh", "zh-tw");
+  });
+  $(".english").click(() => {
+    changeStreamLang("&language=en", "en");
+  });
+});
+
 //launch request
 function launch(
   id,
@@ -29,7 +63,7 @@ function changeStreamLang(streamLang, title) {
   titleLang = title;
 
   //switch title
-  $(".title").html(window.I18N[titleLang].TITLE);
+  $(".title").html(I18N[titleLang].TITLE);
 
   //reload animation
   $(".thumbnail").each((index) => ($(".thumbnail")[index].style.opacity = "0"));

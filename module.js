@@ -1,30 +1,3 @@
-//switch to the stream list of chosen language
-function changeStreamLang(streamLang, title) {
-  lang = streamLang;
-  titleLang = title;
-
-  //i18n
-  $(".title").html(window.I18N[titleLang].TITLE);
-
-  //reload animation
-  $(".thumbnail").each((index) => ($(".thumbnail")[index].style.opacity = "0"));
-  $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
-  $(".channel").html("Title");
-  $(".streamer-name").html("Streamer");
-
-  //re-launch request
-  launch(
-    twitchID,
-    getToken,
-    lang,
-    getGameID,
-    getStream,
-    getUser,
-    getData,
-    render
-  );
-}
-
 //launch request
 function launch(
   id,
@@ -48,6 +21,33 @@ function launch(
       console.log("error");
     },
   });
+}
+
+//switch to the stream list of chosen language
+function changeStreamLang(streamLang, title) {
+  lang = streamLang;
+  titleLang = title;
+
+  //switch title
+  $(".title").html(window.I18N[titleLang].TITLE);
+
+  //reload animation
+  $(".thumbnail").each((index) => ($(".thumbnail")[index].style.opacity = "0"));
+  $(".avatar").each((index) => ($(".avatar")[index].style.opacity = "0"));
+  $(".channel").html("Title");
+  $(".streamer-name").html("Streamer");
+
+  //re-launch request
+  launch(
+    twitchID,
+    getToken,
+    lang,
+    getGameID,
+    getStream,
+    getUser,
+    getData,
+    render
+  );
 }
 
 //get game id

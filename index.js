@@ -5,9 +5,8 @@ let lang = "&language=zh";
 let titleLang = "zh-tw";
 
 $(document).ready(() => {
-  $(".title").html(window.I18N[titleLang].TITLE);
-
   //initialize
+  $(".title").html(window.I18N[titleLang].TITLE);
   launch(
     twitchID,
     getToken,
@@ -18,8 +17,4 @@ $(document).ready(() => {
     getData,
     render
   );
-
-  //click to switch stream list
-  $(".chinese").click(() => changeStreamLang("&language=zh", "zh-tw"));
-  $(".english").click(() => changeStreamLang("&language=en", "en"));
 });

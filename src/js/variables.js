@@ -1,5 +1,5 @@
-import enTitle from "./lang-en.js";
-import zhTwTitle from "./lang-zh-tw";
+import { enTitle } from "./lang-en.js";
+import { zhTwTitle } from "./lang-zh-tw";
 
 let lang = "&language=zh";
 let titleLang = "zh-tw";

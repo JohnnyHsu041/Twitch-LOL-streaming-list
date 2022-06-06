@@ -1,3 +1,4 @@
+import css from "../css/index.css";
 import mods from "./modules.js";
 import vars from "./variables.js";
 

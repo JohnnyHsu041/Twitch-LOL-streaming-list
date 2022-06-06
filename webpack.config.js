@@ -2,6 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
+  mode: "production",
   entry: "./src/js/index.js",
   output: {
     filename: "main.js",
@@ -18,6 +19,14 @@ module.exports = {
             presets: ["@babel/preset-env"],
           },
         },
+      },
+    ],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
       },
     ],
   },

@@ -10,12 +10,7 @@ $(document).ready(() => {
   mods.launch(
     vars.twitchID,
     vars.getToken,
-    vars.lang,
-    mods.getGameID,
-    mods.getStream,
-    mods.getUser,
-    mods.getData,
-    mods.render
+    vars.lang
   );
 
   //switch to Chinese
@@ -28,12 +23,7 @@ $(document).ready(() => {
     mods.launch(
       vars.twitchID,
       vars.getToken,
-      vars.lang,
-      mods.getGameID,
-      mods.getStream,
-      mods.getUser,
-      mods.getData,
-      mods.render
+      vars.lang
     );
   });
 
@@ -47,12 +37,7 @@ $(document).ready(() => {
     mods.launch(
       vars.twitchID,
       vars.getToken,
-      vars.lang,
-      mods.getGameID,
-      mods.getStream,
-      mods.getUser,
-      mods.getData,
-      mods.render
+      vars.lang
     );
   });
 });

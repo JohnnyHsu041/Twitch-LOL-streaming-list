@@ -17,12 +17,7 @@ function switchLang(title) {
 function launch(
   id,
   token,
-  lang,
-  callback,
-  callback2,
-  callback3,
-  callback4,
-  callback5
+  lang
 ) {
   $.ajax({
     url: token,
@@ -30,7 +25,7 @@ function launch(
     type: "json",
     success: function (response) {
       const token = response.access_token;
-      callback(id, token, lang, callback2, callback3, callback4, callback5);
+      getGameID(id, token, lang);
     },
     error: function (response) {
       console.log("error");
@@ -39,7 +34,7 @@ function launch(
 }
 
 //get game id
-function getGameID(id, token, lang, callback, callback2, callback3, callback4) {
+function getGameID(id, token, lang) {
   const api = "https://api.twitch.tv/helix/games?name=League%20of%20Legends";
 
   $.ajax({
@@ -52,14 +47,14 @@ function getGameID(id, token, lang, callback, callback2, callback3, callback4) {
     type: "json",
     success: (response) => {
       const gameID = response.data[0].id;
-      callback(gameID, id, token, lang, callback2, callback3, callback4);
+      getStream(gameID, id, token, lang);
     },
     error: (response) => console.log("getGameID error"),
   });
 }
 
 //get stream list
-function getStream(gameID, id, token, lang, callback, callback2, callback3) {
+function getStream(gameID, id, token, lang) {
   const api = `https://api.twitch.tv/helix/streams?game_id=${gameID}${lang}`;
 
   $.ajax({
@@ -72,22 +67,22 @@ function getStream(gameID, id, token, lang, callback, callback2, callback3) {
     type: "json",
     success: (response) => {
       const result = response;
-      callback(result, id, token, callback2, callback3);
+      getUser(result, id, token);
     },
     error: (response) => console.log("error"),
   });
 }
 
 //get each streamer
-function getUser(result, clientID, token, callback, callback2) {
+function getUser(result, clientID, token) {
   const streamers = result.data;
   for (let i = 0; i < streamers.length; i++) {
-    callback(streamers[i], clientID, token, i, callback2);
+    getData(streamers[i], clientID, token, i);
   }
 }
 
 //get streamer info
-function getData(streamer, clientID, token, order, callback) {
+function getData(streamer, clientID, token, order) {
   const api = `https://api.twitch.tv/helix/users?id=${streamer.user_id}`;
 
   $.ajax({
@@ -98,7 +93,7 @@ function getData(streamer, clientID, token, order, callback) {
       "Client-Id": clientID,
     },
     type: "json",
-    success: (response) => callback(streamer, order, response),
+    success: (response) => render(streamer, order, response),
     error: (response) => console.log("error"),
   });
 }
